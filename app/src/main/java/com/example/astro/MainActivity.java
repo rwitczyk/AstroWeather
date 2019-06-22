@@ -1,5 +1,6 @@
 package com.example.astro;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -51,6 +52,9 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
     RestAdapter retrofit;
     MyWebService myWebService;
+    private Data dataFromApi;
+    private AlertDialog.Builder a_Builder;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +148,23 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             dayF.updateData();
             nightF.updateData();
         }
+
+        myWebService.getDataByCoords(String.valueOf(pos1),String.valueOf(pos2),"46f94484a5750d7cd295671f61987bb9",new Callback<Data>() {
+            @Override
+            public void success(Data data, Response response) {
+                dataFromApi = data;
+                simpleF.getDataFromApi(dataFromApi);
+                simpleF.updateData();
+                System.out.println("FROM API2: " + data.getName());
+                System.out.println(response.getBody());
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+                showAlert();
+            }
+        });
     }
 
     public void onSunClick(View view)
@@ -160,23 +181,13 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 .commit();
     }
 
-    public void onSimpleClick(View view) throws InterruptedException {
+    public void onSimpleClick(View view)
+    {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.containerForAstro,simpleF)
                 .commit();
-//        TimeUnit.SECONDS.sleep(2);
-        myWebService.getDataByCoords(new Callback<Data>() {
-            @Override
-            public void success(Data data, Response response) {
-                System.out.println("FROM API2: " + data.getName());
-                System.out.println(response.getBody());
-            }
 
-            @Override
-            public void failure(RetrofitError error) {
-                System.out.println("NIE DZIALA :(");
-            }
-        });
+        simpleF.getDataFromApi(dataFromApi);
     }
 
     public void onAdvancedClick(View view)
@@ -231,5 +242,12 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    private void showAlert() {
+        a_Builder = new AlertDialog.Builder(this);
+        alertDialog = a_Builder.create();
+        alertDialog.setTitle("Wrong coordinate!");
+        alertDialog.show();
     }
 }

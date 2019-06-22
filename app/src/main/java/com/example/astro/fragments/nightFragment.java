@@ -1,9 +1,12 @@
 package com.example.astro.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -110,6 +113,23 @@ public class nightFragment extends Fragment {
         return view;
     }
 
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            try {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                if (Build.VERSION.SDK_INT >= 26) {
+                    ft.setReorderingAllowed(false);
+                }
+                ft.detach(this).attach(this).commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(double pos1, double pos2) {
         if (mListener != null) {
@@ -136,11 +156,8 @@ public class nightFragment extends Fragment {
 
     public void updatePosition(double pos1,double pos2)
     {
-
         location = new AstroCalculator.Location(pos1,pos2);
         astroCalculator = new AstroCalculator(astroDateTime,location);
-
-
     }
 
     public void updateData()

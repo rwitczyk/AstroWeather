@@ -3,9 +3,11 @@ package com.example.astro.fragments;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,33 +88,26 @@ public class dayFragment extends Fragment {
         }
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle savedInstanceState) {
-//        super.onSaveInstanceState(savedInstanceState);
-//        savedInstanceState.putDouble("Pozycja1",temp_pos1);
-//        savedInstanceState.putDouble("Pozycja2",temp_pos2);
-//    }
-//
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState)
-//    {
-//        super.onActivityCreated(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            System.out.println(savedInstanceState.getDouble("Pozycja1") + ", " + savedInstanceState.getDouble("Pozycja2"));
-//            this.temp_pos1 = savedInstanceState.getDouble("Pozycja1");
-//            this.temp_pos2 = savedInstanceState.getDouble("Pozycja2");
-//            updatePosition(this.temp_pos1,this.temp_pos2);
-//        }
-//    }
-
     // musi byc pobieranie z kalendarza to co wyzej, musza byc 4 rozne layouty po prostu, dla tableta inne, moze po wpisaniu potwierdzic buttonem
     // trzeba pobierac strefe czasowa w jakis sposob
     // godzina aktualna
 
+
+
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
-        System.out.println("ZMIANA");
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            try {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                if (Build.VERSION.SDK_INT >= 26) {
+                    ft.setReorderingAllowed(false);
+                }
+                ft.detach(this).attach(this).commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -103,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/moonButton"
             app:layout_constraintStart_toEndOf="@+id/button3"
-            app:layout_constraintTop_toBottomOf="@+id/actTime" />
+            app:layout_constraintTop_toBottomOf="@+id/ok_button" />
 
         <Button
             android:id="@+id/moonButton"
@@ -114,7 +114,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/sunButton"
-            app:layout_constraintTop_toBottomOf="@+id/pos2" />
+            app:layout_constraintTop_toBottomOf="@+id/ok_button" />
 
         <TextView
             android:id="@+id/textView2"
@@ -145,18 +145,18 @@
             android:id="@+id/button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="17dp"
             android:layout_marginBottom="5dp"
             android:onClick="onSimpleClick"
             android:text="Simple"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pos1" />
+            app:layout_constraintTop_toBottomOf="@+id/actTime" />
 
         <Button
             android:id="@+id/button2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="5dp"
@@ -169,7 +169,7 @@
 
         <Button
             android:id="@+id/button3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="5dp"

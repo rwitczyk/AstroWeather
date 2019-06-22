@@ -3,6 +3,7 @@ package com.example.astro;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,8 +12,11 @@ import android.widget.TextView;
 
 import com.astrocalculator.AstroCalculator;
 import com.astrocalculator.AstroDateTime;
+import com.example.astro.fragments.advancedFragment;
 import com.example.astro.fragments.dayFragment;
+import com.example.astro.fragments.forecastFragment;
 import com.example.astro.fragments.nightFragment;
+import com.example.astro.fragments.simpleFragment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,7 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener, simpleFragment.OnFragmentInteractionListener, advancedFragment.OnFragmentInteractionListener, forecastFragment.OnFragmentInteractionListener {
 
     private TextView actualTime;
     private EditText position1,position2,refresh;
@@ -31,8 +35,10 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private int refreshTime = 5;
     private dayFragment dayF;
     private nightFragment nightF;
+    private simpleFragment simpleF;
+    private advancedFragment advancedF;
+    private forecastFragment forecastF;
     boolean is_tablet = false;
-    Fragment mContent = new dayFragment();
 
     //TimeZone timeZone = TimeZone.getTimeZone(String.valueOf(Calendar.getInstance().getTimeZone().useDaylightTime()));
 
@@ -158,17 +164,23 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
     public void onSimpleClick(View view)
     {
-
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.containerForAstro,simpleF)
+                .commit();
     }
 
     public void onAdvancedClick(View view)
     {
-
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.containerForAstro,advancedF)
+                .commit();
     }
 
     public void onForecastClick(View view)
     {
-
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.containerForAstro,forecastF)
+                .commit();
     }
 
 
@@ -184,6 +196,9 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
         dayF = new dayFragment();
         nightF = new nightFragment();
+        simpleF = new simpleFragment();
+        advancedF = new advancedFragment();
+        forecastF = new forecastFragment();
 
        // AstroCalculator.Location location = new AstroCalculator.Location(pos1,pos2);
 
@@ -196,6 +211,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     }
 
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
-
+    }
 }

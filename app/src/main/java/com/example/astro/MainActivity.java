@@ -47,12 +47,6 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         setContentView(R.layout.activity_main);
 
         init();
-
-//        if (savedInstanceState != null) {
-//            //Restore the fragment's instance
-//            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "myFragmentName");
-//        }
-
         is_tablet = getResources().getBoolean(R.bool.is_tablet);
 
         Log.d("aktywnosc","Is tableto? " +  String.valueOf(is_tablet));
@@ -136,11 +130,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
 
         if(position1.getText().length() > 0 && position2.getText().length() > 0) {
-            //      if (pos1 != Double.parseDouble(position1.getText().toString()) || pos2 != Double.parseDouble(position2.getText().toString())) {
-
             dayF.updateData();
             nightF.updateData();
-            //        }
         }
     }
 

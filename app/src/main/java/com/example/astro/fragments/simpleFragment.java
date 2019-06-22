@@ -1,16 +1,21 @@
 package com.example.astro.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.astro.R;
+import com.example.astro.data.Data;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +36,9 @@ public class simpleFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private Data dataFromApi;
+    private View view;
+    private TextView latitude,longitude,cityName;
 
     public simpleFragment() {
         // Required empty public constructor
@@ -64,10 +72,15 @@ public class simpleFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_simple, container, false);
+
+        init();
+        updateData();
+
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_simple, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -75,6 +88,20 @@ public class simpleFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public void updateData()
+    {
+        if(this.dataFromApi!=null && cityName!=null) {
+            cityName.setText("City name: " + this.dataFromApi.getName());
+            latitude.setText("Latitude: " + this.dataFromApi.getCoord().getLat());
+            longitude.setText("Longitude: " + this.dataFromApi.getCoord().getLon());
+        }
+    }
+
+    public void getDataFromApi(Data data)
+    {
+        this.dataFromApi = data;
     }
 
     @Override
@@ -94,6 +121,22 @@ public class simpleFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){ //obracanie ekranu
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            try {
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                if (Build.VERSION.SDK_INT >= 26) {
+                    ft.setReorderingAllowed(false);
+                }
+                ft.detach(this).attach(this).commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -107,5 +150,14 @@ public class simpleFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void init()
+    {
+        if(view!=null) {
+            latitude = view.findViewById(R.id.latitudeTextView);
+            longitude = view.findViewById(R.id.longitudeTextView);
+            cityName = view.findViewById(R.id.nameOfCity);
+        }
     }
 }

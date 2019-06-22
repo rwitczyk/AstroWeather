@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"  android:layout_width="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/holo_orange_light"
+        android:gravity="center_horizontal"
+        tools:context=".fragments.dayFragment">
+
+        <TextView
+            android:id="@+id/azimuthRiseTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="174dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="178dp"
+            android:layout_marginBottom="9dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@+id/azimuthSetTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/azimuthSetTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="174dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="178dp"
+            android:layout_marginBottom="8dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@+id/sunriseTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/azimuthRiseTextView" />
+
+        <TextView
+            android:id="@+id/sunriseTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="175dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="177dp"
+            android:layout_marginBottom="4dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@+id/sunsetTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/azimuthSetTextView" />
+
+        <TextView
+            android:id="@+id/sunsetTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="175dp"
+            android:layout_marginEnd="177dp"
+            android:layout_marginBottom="4dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@+id/twilightEveningTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sunriseTextView" />
+
+        <TextView
+            android:id="@+id/twilightEveningTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="175dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="177dp"
+            android:layout_marginBottom="6dp"
+            android:text="0"
+            app:layout_constraintBottom_toTopOf="@+id/twilightMorningTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sunsetTextView" />
+
+        <TextView
+            android:id="@+id/twilightMorningTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="175dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="177dp"
+            android:layout_marginBottom="20dp"
+            android:text="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/twilightEveningTextView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

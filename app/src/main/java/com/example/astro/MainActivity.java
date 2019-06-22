@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private advancedFragment advancedF;
     private forecastFragment forecastF;
     boolean is_tablet = false;
+    private String apiKey = "46f94484a5750d7cd295671f61987bb9";
 
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
@@ -147,24 +148,24 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         if(position1.getText().length() > 0 && position2.getText().length() > 0) {
             dayF.updateData();
             nightF.updateData();
+
+            myWebService.getDataByCoords(pos1,pos2,apiKey,new Callback<Data>() {
+                @Override
+                public void success(Data data, Response response) {
+                    dataFromApi = data;
+                    simpleF.getDataFromApi(dataFromApi);
+                    simpleF.updateData();
+                    System.out.println("FROM API2: " + data.getName()); // poprawic dla liczb zmiennoprzecinkowych np. lat=50.5&lon=20.8
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    System.out.println("NIE DZIALA :(");
+                    System.out.println(error.getUrl());
+                    showAlert();
+                }
+            });
         }
-
-        myWebService.getDataByCoords(String.valueOf(pos1),String.valueOf(pos2),"46f94484a5750d7cd295671f61987bb9",new Callback<Data>() {
-            @Override
-            public void success(Data data, Response response) {
-                dataFromApi = data;
-                simpleF.getDataFromApi(dataFromApi);
-                simpleF.updateData();
-                System.out.println("FROM API2: " + data.getName());
-                System.out.println(response.getBody());
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                System.out.println("NIE DZIALA :(");
-                showAlert();
-            }
-        });
     }
 
     public void onSunClick(View view)

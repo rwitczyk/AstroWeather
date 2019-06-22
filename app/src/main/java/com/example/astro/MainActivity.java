@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.astrocalculator.AstroCalculator;
 import com.astrocalculator.AstroDateTime;
+import com.example.astro.data.Data;
 import com.example.astro.fragments.advancedFragment;
 import com.example.astro.fragments.dayFragment;
 import com.example.astro.fragments.forecastFragment;
@@ -24,6 +25,12 @@ import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener, simpleFragment.OnFragmentInteractionListener, advancedFragment.OnFragmentInteractionListener, forecastFragment.OnFragmentInteractionListener {
 
@@ -40,12 +47,10 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private forecastFragment forecastF;
     boolean is_tablet = false;
 
-    //TimeZone timeZone = TimeZone.getTimeZone(String.valueOf(Calendar.getInstance().getTimeZone().useDaylightTime()));
-
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
-    //DateFormat dfForAstro = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss:XX");
 
-
+    RestAdapter retrofit;
+    MyWebService myWebService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,13 +146,6 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        //Save the fragment's instance
-    }
-
     public void onSunClick(View view)
     {
         getSupportFragmentManager().beginTransaction()
@@ -162,11 +160,23 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 .commit();
     }
 
-    public void onSimpleClick(View view)
-    {
+    public void onSimpleClick(View view) throws InterruptedException {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.containerForAstro,simpleF)
                 .commit();
+//        TimeUnit.SECONDS.sleep(2);
+        myWebService.getDataByCoords(new Callback<Data>() {
+            @Override
+            public void success(Data data, Response response) {
+                System.out.println("FROM API2: " + data.getName());
+                System.out.println(response.getBody());
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+            }
+        });
     }
 
     public void onAdvancedClick(View view)
@@ -200,9 +210,16 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         advancedF = new advancedFragment();
         forecastF = new forecastFragment();
 
-       // AstroCalculator.Location location = new AstroCalculator.Location(pos1,pos2);
 
+        retrofit = new RestAdapter.Builder()
+                // adres API
+                .setEndpoint("http://api.openweathermap.org")
+                // niech Retrofit loguje wszystko co robi
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .build();
 
+        // tworzymy klienta
+        myWebService = retrofit.create(MyWebService.class);
     }
 
     @Override

@@ -12,10 +12,12 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.astro.R;
 import com.example.astro.data.Data;
+import com.squareup.picasso.Picasso;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +40,8 @@ public class simpleFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private Data dataFromApi;
     private View view;
-    private TextView latitude,longitude,cityName;
+    private TextView latitude,longitude,cityName,temperature,description;
+    private ImageView image;
 
     public simpleFragment() {
         // Required empty public constructor
@@ -96,6 +99,12 @@ public class simpleFragment extends Fragment {
             cityName.setText("City name: " + this.dataFromApi.getName());
             latitude.setText("Latitude: " + this.dataFromApi.getCoord().getLat());
             longitude.setText("Longitude: " + this.dataFromApi.getCoord().getLon());
+            temperature.setText("Actual temperature: " + this.dataFromApi.getMain().getTemp());
+            description.setText("Description: " + this.dataFromApi.getWeather().get(0).getDescription());
+
+            Picasso.get()
+                    .load("http://openweathermap.org/img/w/"+this.dataFromApi.getWeather().get(0).getIcon()+".png")
+                    .into(image);
         }
     }
 
@@ -157,7 +166,10 @@ public class simpleFragment extends Fragment {
         if(view!=null) {
             latitude = view.findViewById(R.id.latitudeTextView);
             longitude = view.findViewById(R.id.longitudeTextView);
-            cityName = view.findViewById(R.id.nameOfCity);
+            cityName = view.findViewById(R.id.nameOfCityTextView);
+            temperature = view.findViewById(R.id.tempTextView);
+            description = view.findViewById(R.id.descriptionTextView);
+            image = view.findViewById(R.id.imageView);
         }
     }
 }

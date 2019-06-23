@@ -2,17 +2,15 @@ package com.example.astro;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import com.astrocalculator.AstroCalculator;
-import com.astrocalculator.AstroDateTime;
 import com.example.astro.data.Data;
 import com.example.astro.fragments.advancedFragment;
 import com.example.astro.fragments.dayFragment;
@@ -22,11 +20,8 @@ import com.example.astro.fragments.simpleFragment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -36,11 +31,11 @@ import retrofit.client.Response;
 public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener, simpleFragment.OnFragmentInteractionListener, advancedFragment.OnFragmentInteractionListener, forecastFragment.OnFragmentInteractionListener {
 
     private TextView actualTime;
-    private EditText position1,position2,refresh;
+    private EditText position1,position2,refresh,cityName;
     private Date currentTime;
     private String time;
     private double pos1,pos2;
-    private int refreshTime = 5;
+    private int refreshTime = 2;
     private dayFragment dayF;
     private nightFragment nightF;
     private simpleFragment simpleF;
@@ -48,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private forecastFragment forecastF;
     boolean is_tablet = false;
     private String apiKey = "46f94484a5750d7cd295671f61987bb9";
-
+    private String units = "metric";
+    private Switch switchButton;
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     RestAdapter retrofit;
@@ -127,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         thread2.start();
     }
 
-    public void onSaveNewPositionClick(View view)
+    public void onSaveNewCoordsClick(View view)
     {
         if (position1.getText().length() > 0 && Double.parseDouble(position1.getText().toString()) > -90 && Double.parseDouble(position1.getText().toString()) < 90) {
             pos1 = Double.parseDouble(position1.getText().toString());
@@ -146,18 +142,66 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             dayF.updateData();
             nightF.updateData();
 
-            connectApiToGetData();
+            if(switchButton.isChecked()) {
+                units = "imperial";
+                connectApiToGetDataByCoords();
+            }
+            else
+            {
+                units = "metric";
+                connectApiToGetDataByCoords();
+            }
         }
     }
 
-    private void connectApiToGetData() {
-        myWebService.getDataByCoords(pos1,pos2,apiKey,new Callback<Data>() {
+    public void onSaveNewNameOfCityClick(View view)
+    {
+        if(cityName.getText().length()>0)
+        {
+            if(switchButton.isChecked()) {
+                units = "imperial";
+                connectApiToGetDataByCityName();
+            }
+            else
+            {
+                units = "metric";
+                connectApiToGetDataByCityName();
+            }
+        }
+    }
+
+    private void connectApiToGetDataByCityName() {
+        myWebService.getDataByName(String.valueOf(cityName.getText()),units,apiKey,new Callback<Data>() {
             @Override
             public void success(Data data, Response response) {
                 dataFromApi = data;
                 simpleF.getDataFromApi(dataFromApi);
                 simpleF.updateData();
-                System.out.println("FROM API2: " + data.getName());
+
+                advancedF.getDataFromApi(dataFromApi);
+                advancedF.updateData();
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+                System.out.println(error.getUrl());
+                showAlert();
+            }
+        });
+    }
+
+    private void connectApiToGetDataByCoords() {
+        myWebService.getDataByCoords(pos1,pos2,units,apiKey,new Callback<Data>() {
+            @Override
+            public void success(Data data, Response response) {
+                dataFromApi = data;
+                simpleF.getDataFromApi(dataFromApi);
+                simpleF.updateData();
+
+                advancedF.getDataFromApi(dataFromApi);
+                advancedF.updateData();
             }
 
             @Override
@@ -190,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 .commit();
 
         simpleF.getDataFromApi(dataFromApi);
+        simpleF.updateData();
     }
 
     public void onAdvancedClick(View view)
@@ -197,6 +242,9 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.containerForAstro,advancedF)
                 .commit();
+
+        advancedF.getDataFromApi(dataFromApi);
+        advancedF.updateData();
     }
 
     public void onForecastClick(View view)
@@ -206,12 +254,19 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 .commit();
     }
 
+    public void onSwitchUnits(View view)
+    {
+
+    }
+
 
     private void init() {
         actualTime = findViewById(R.id.actTime);
         position1 = findViewById(R.id.pos1);
         position2 = findViewById(R.id.pos2);
         refresh = findViewById(R.id.refreshTime);
+        cityName = findViewById(R.id.cityNameEditText);
+        switchButton = findViewById(R.id.switchUnits);
 
         pos1 = Double.parseDouble(position1.getText().toString());
         pos2 = Double.parseDouble(position2.getText().toString());
@@ -249,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private void showAlert() {
         a_Builder = new AlertDialog.Builder(this);
         alertDialog = a_Builder.create();
-        alertDialog.setTitle("Wrong coordinate!");
+        alertDialog.setTitle("Wrong data!");
         alertDialog.show();
     }
 }

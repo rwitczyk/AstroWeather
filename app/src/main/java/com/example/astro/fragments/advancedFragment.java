@@ -12,8 +12,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.astro.R;
+import com.example.astro.data.Data;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,12 +30,15 @@ public class advancedFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private TextView pressure,humidity,description,windSpeed,windDirection;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private View view;
+    private Data dataFromApi;
 
     public advancedFragment() {
         // Required empty public constructor
@@ -67,16 +72,35 @@ public class advancedFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_advanced, container, false);
+
+        init();
+        updateData();
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_advanced, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    public void getDataFromApi(Data data)
+    {
+        this.dataFromApi = data;
+    }
+
+    public void updateData()
+    {
+        if(this.dataFromApi!=null && pressure!=null) {
+            pressure.setText("Pressure: " + this.dataFromApi.getMain().getPressure() + "hPa");
+            humidity.setText("Humidity: " + this.dataFromApi.getMain().getHumidity() + "%");
+            description.setText("Description: " + this.dataFromApi.getWeather().get(0).getDescription());
+            windSpeed.setText("Wind speed: " + this.dataFromApi.getWind().getSpeed());
+            windDirection.setText("Wind direction: " + this.dataFromApi.getWind().getDeg() + "°");
         }
     }
 
@@ -126,5 +150,16 @@ public class advancedFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void init()
+    {
+        if(view!=null) {
+            pressure = view.findViewById(R.id.pressureTextView);
+            humidity = view.findViewById(R.id.humidityTextView);
+            description = view.findViewById(R.id.descriptionTextView);
+            windSpeed = view.findViewById(R.id.windSpeedTextView);
+            windDirection = view.findViewById(R.id.windDirectionTextView);
+        }
     }
 }

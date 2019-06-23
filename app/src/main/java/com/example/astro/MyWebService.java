@@ -8,8 +8,8 @@ import retrofit.http.Query;
 
 public interface MyWebService {
     @GET("/data/2.5/weather") // deklarujemy endpoint oraz metodę
-    void getDataByCoords(@Query("lat") Double lat,@Query("lon") Double lon, @Query("appid") String appid, Callback<Data> pResponse);
+    void getDataByCoords(@Query("lat") Double lat,@Query("lon") Double lon, @Query("units") String units, @Query("appid") String appid, Callback<Data> pResponse);
 
     @GET("/data/2.5/weather")
-    void getDataByName(@Query("q") String cityName, @Query("appid") String appid, Callback<Data> pResponse);
+    void getDataByName(@Query("q") String cityName,@Query("units") String units, @Query("appid") String appid, Callback<Data> pResponse);
 }

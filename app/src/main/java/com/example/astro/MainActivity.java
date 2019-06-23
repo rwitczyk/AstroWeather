@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         init();
         is_tablet = getResources().getBoolean(R.bool.is_tablet);
 
-        Log.d("aktywnosc","Is tableto? " +  String.valueOf(is_tablet));
+        Log.d("aktywnosc","Is tablet? " +  String.valueOf(is_tablet));
 
         if(is_tablet)
         {
@@ -78,13 +78,10 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                     .commit();
         }
 
-      //  Log.d("aktywnosc","TIMEZONE: " + Calendar.getInstance().getTimeZone().useDaylightTime());
-        //Calendar.getInstance().getTimeZone().useDaylightTime();
-
 
         Thread thread = new Thread() { // odswiezanie zegarka
             @Override
-            public void run() {
+            public void run() { //zegarek
                 try{
                     while(!isInterrupted())
                     {
@@ -149,23 +146,27 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             dayF.updateData();
             nightF.updateData();
 
-            myWebService.getDataByCoords(pos1,pos2,apiKey,new Callback<Data>() {
-                @Override
-                public void success(Data data, Response response) {
-                    dataFromApi = data;
-                    simpleF.getDataFromApi(dataFromApi);
-                    simpleF.updateData();
-                    System.out.println("FROM API2: " + data.getName()); // poprawic dla liczb zmiennoprzecinkowych np. lat=50.5&lon=20.8
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    System.out.println("NIE DZIALA :(");
-                    System.out.println(error.getUrl());
-                    showAlert();
-                }
-            });
+            connectApiToGetData();
         }
+    }
+
+    private void connectApiToGetData() {
+        myWebService.getDataByCoords(pos1,pos2,apiKey,new Callback<Data>() {
+            @Override
+            public void success(Data data, Response response) {
+                dataFromApi = data;
+                simpleF.getDataFromApi(dataFromApi);
+                simpleF.updateData();
+                System.out.println("FROM API2: " + data.getName());
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+                System.out.println(error.getUrl());
+                showAlert();
+            }
+        });
     }
 
     public void onSunClick(View view)

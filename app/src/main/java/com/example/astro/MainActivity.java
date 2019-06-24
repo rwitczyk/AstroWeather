@@ -18,6 +18,7 @@ import com.example.astro.data.Data;
 import com.example.astro.forecast.DataForecast;
 import com.example.astro.fragments.advancedFragment;
 import com.example.astro.fragments.dayFragment;
+import com.example.astro.fragments.favouriteFragment;
 import com.example.astro.fragments.forecastFragment;
 import com.example.astro.fragments.nightFragment;
 import com.example.astro.fragments.simpleFragment;
@@ -27,12 +28,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener, simpleFragment.OnFragmentInteractionListener, advancedFragment.OnFragmentInteractionListener, forecastFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements dayFragment.OnFragmentInteractionListener,nightFragment.OnFragmentInteractionListener, simpleFragment.OnFragmentInteractionListener, advancedFragment.OnFragmentInteractionListener, forecastFragment.OnFragmentInteractionListener, favouriteFragment.OnFragmentInteractionListener {
 
     private TextView actualTime;
     private EditText position1,position2,refresh,cityName;
@@ -45,10 +49,13 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private simpleFragment simpleF;
     private advancedFragment advancedF;
     private forecastFragment forecastF;
+    private favouriteFragment favouriteF;
     boolean is_tablet = false;
     private String apiKey = "46f94484a5750d7cd295671f61987bb9";
     private String units = "metric";
     private Switch switchButton;
+    private RealmResults<FavouriteData> favouriteDataRealmResults;
+    private Realm realm;
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     RestAdapter retrofit;
@@ -128,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
         thread.start();
         thread2.start();
+
+        // zrobic baze na ulubione lokalizacje, zapisywac dane i wczytywac przy starcie aplikacji, zrobic layout na tablet
 
         System.out.println("IS NET?:" + isNetworkAvailable());
         if(isNetworkAvailable())
@@ -294,6 +303,15 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 .commit();
     }
 
+    public void onFavouriteClick(View view)
+    {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.containerForAstro,favouriteF)
+                .commit();
+
+        favouriteF.getListOfLocalizations(realm,favouriteDataRealmResults);
+    }
+
     public void onSimpleClick(View view)
     {
         getSupportFragmentManager().beginTransaction()
@@ -341,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         simpleF = new simpleFragment();
         advancedF = new advancedFragment();
         forecastF = new forecastFragment();
+        favouriteF = new favouriteFragment();
 
 
         retrofit = new RestAdapter.Builder()
@@ -352,6 +371,44 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
         // tworzymy klienta
         myWebService = retrofit.create(MyWebService.class);
+
+
+        initDatabaseRealm();
+    }
+
+    private void initDatabaseRealm() {
+        Realm.init(this);
+        RealmConfiguration realmConfig2 = new RealmConfiguration.Builder()
+                .name("location2.db")
+                .schemaVersion(0)
+                .build();
+        Realm.setDefaultConfiguration(realmConfig2);
+        realm = Realm.getInstance(realmConfig2);
+
+        favouriteDataRealmResults = realm.where(FavouriteData.class).contains("name","Lodz").findAll();
+        System.out.println("SIZE: " + favouriteDataRealmResults.size());
+
+        realm.beginTransaction();
+        realm.deleteAll();
+        System.out.println("SIZE1: " + favouriteDataRealmResults.size());
+        FavouriteData favouriteData = realm.createObject(FavouriteData.class);
+        favouriteData.setName("Lodz");
+        favouriteData.setIdLocalization("5");
+        realm.commitTransaction();
+
+        realm.beginTransaction();
+        FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
+        addItemToDB.setName("Krakow");
+        addItemToDB.setIdLocalization("3");
+        realm.commitTransaction();
+
+        favouriteDataRealmResults = realm.where(FavouriteData.class).findAll();
+
+        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) {
+            System.out.println("XD: " + favouriteDataRealmResult.getName());
+        }
+
+        System.out.println("SIZE2: " + favouriteDataRealmResults.size());
     }
 
     @Override
@@ -371,4 +428,46 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         alertDialog.setTitle(alert);
         alertDialog.show();
     }
+
+    public void addLocalizationOnClick(View view)
+    {
+        boolean ifCityActualExistsInDb = false;
+        String value = favouriteF.nameOfCity.getText().toString();
+        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
+            if(value.equals(favouriteDataRealmResult.getName()))
+            {
+                ifCityActualExistsInDb = true;
+                break;
+            }
+            else
+            {
+                ifCityActualExistsInDb = false;
+            }
+        }
+
+        if(!ifCityActualExistsInDb) {
+            realm.beginTransaction();
+            FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
+            addItemToDB.setName(value);
+            addItemToDB.setIdLocalization("3");
+            realm.commitTransaction();
+
+            favouriteF.printLocalizationList();
+        }
+    }
+
+    public void deleteLocalizationOnClick(View view)
+    {
+        realm.beginTransaction();
+        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) {
+            if(favouriteDataRealmResult.getName().equals(favouriteF.nameOfCity.getText().toString()))
+            {
+                // TODO usun lokalizacje
+            }
+        }
+        realm.commitTransaction();
+
+        favouriteF.printLocalizationList();
+    }
+
 }

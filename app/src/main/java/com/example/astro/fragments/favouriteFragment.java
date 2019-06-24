@@ -92,10 +92,14 @@ public class favouriteFragment extends Fragment {
     }
 
     public void printLocalizationList() {
-        localizationList.setText("");
-        for (FavouriteData favouriteDataRealmResult : this.favouriteDataRealmResults) {
-            localizationList.setText(localizationList.getText() + "\n" +
-                    favouriteDataRealmResult.getName() +"\n");
+        if(localizationList!=null) {
+            localizationList.setText("");
+            if (this.favouriteDataRealmResults != null) {
+                for (FavouriteData favouriteDataRealmResult : this.favouriteDataRealmResults) {
+                    localizationList.setText(localizationList.getText() + "\n" +
+                            favouriteDataRealmResult.getName() + "\n");
+                }
+            }
         }
     }
 

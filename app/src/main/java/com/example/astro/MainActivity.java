@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         thread.start();
         thread2.start();
 
-        // zrobic baze na ulubione lokalizacje, zapisywac dane i wczytywac przy starcie aplikacji, zrobic layout na tablet
+        // zapisywac dane i wczytywac przy starcie aplikacji, zrobic layout na tablet
 
         System.out.println("IS NET?:" + isNetworkAvailable());
         if(isNetworkAvailable())
@@ -385,30 +385,50 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         Realm.setDefaultConfiguration(realmConfig2);
         realm = Realm.getInstance(realmConfig2);
 
-        favouriteDataRealmResults = realm.where(FavouriteData.class).contains("name","Lodz").findAll();
-        System.out.println("SIZE: " + favouriteDataRealmResults.size());
+      favouriteDataRealmResults = realm.where(FavouriteData.class).findAll();
+//        System.out.println("SIZE: " + favouriteDataRealmResults.size());
+//
+//        realm.beginTransaction();
+//        realm.deleteAll();
+//        System.out.println("SIZE1: " + favouriteDataRealmResults.size());
+//        FavouriteData favouriteData = realm.createObject(FavouriteData.class);
+//        favouriteData.setName("Lodz");
+//        favouriteData.setIdLocalization("5");
+//        realm.commitTransaction();
+//
 
-        realm.beginTransaction();
-        realm.deleteAll();
-        System.out.println("SIZE1: " + favouriteDataRealmResults.size());
-        FavouriteData favouriteData = realm.createObject(FavouriteData.class);
-        favouriteData.setName("Lodz");
-        favouriteData.setIdLocalization("5");
-        realm.commitTransaction();
-
-        realm.beginTransaction();
-        FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
-        addItemToDB.setName("Krakow");
-        addItemToDB.setIdLocalization("3");
-        realm.commitTransaction();
-
-        favouriteDataRealmResults = realm.where(FavouriteData.class).findAll();
-
-        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) {
-            System.out.println("XD: " + favouriteDataRealmResult.getName());
+        boolean ifCityActualExistsInDb = false;
+        String value = "Lodz";
+        if(this.favouriteDataRealmResults!=null) {
+            for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
+                if (value.equals(favouriteDataRealmResult.getName())) {
+                    ifCityActualExistsInDb = true;
+                    break;
+                } else {
+                    ifCityActualExistsInDb = false;
+                }
+            }
         }
 
-        System.out.println("SIZE2: " + favouriteDataRealmResults.size());
+        if(!ifCityActualExistsInDb) {
+            if(value.length()>0) {
+                realm.beginTransaction();
+                FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
+                addItemToDB.setName(value);
+                addItemToDB.setIdLocalization("3");
+                realm.commitTransaction();
+
+                favouriteF.printLocalizationList();
+            }
+        }
+
+   //     favouriteDataRealmResults = realm.where(FavouriteData.class).findAll();
+//
+//        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) {
+//            System.out.println("XD: " + favouriteDataRealmResult.getName());
+//        }
+//
+//        System.out.println("SIZE2: " + favouriteDataRealmResults.size());
     }
 
     @Override
@@ -433,38 +453,35 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     {
         boolean ifCityActualExistsInDb = false;
         String value = favouriteF.nameOfCity.getText().toString();
-        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
-            if(value.equals(favouriteDataRealmResult.getName()))
-            {
-                ifCityActualExistsInDb = true;
-                break;
-            }
-            else
-            {
-                ifCityActualExistsInDb = false;
+        if(this.favouriteDataRealmResults!=null) {
+            for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
+                if (value.equals(favouriteDataRealmResult.getName())) {
+                    ifCityActualExistsInDb = true;
+                    break;
+                } else {
+                    ifCityActualExistsInDb = false;
+                }
             }
         }
 
         if(!ifCityActualExistsInDb) {
-            realm.beginTransaction();
-            FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
-            addItemToDB.setName(value);
-            addItemToDB.setIdLocalization("3");
-            realm.commitTransaction();
+            if(value.length()>0) {
+                realm.beginTransaction();
+                FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
+                addItemToDB.setName(value);
+                addItemToDB.setIdLocalization("3");
+                realm.commitTransaction();
 
-            favouriteF.printLocalizationList();
+                favouriteF.printLocalizationList();
+            }
         }
     }
 
     public void deleteLocalizationOnClick(View view)
     {
         realm.beginTransaction();
-        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) {
-            if(favouriteDataRealmResult.getName().equals(favouriteF.nameOfCity.getText().toString()))
-            {
-                // TODO usun lokalizacje
-            }
-        }
+            RealmResults<FavouriteData> result = realm.where(FavouriteData.class).equalTo("name",favouriteF.nameOfCity.getText().toString()).findAll();
+            result.deleteAllFromRealm();
         realm.commitTransaction();
 
         favouriteF.printLocalizationList();

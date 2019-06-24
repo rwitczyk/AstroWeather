@@ -3,6 +3,9 @@ package com.example.astro;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         init();
         is_tablet = getResources().getBoolean(R.bool.is_tablet);
 
-        Log.d("aktywnosc","Is tablet? " +  String.valueOf(is_tablet));
+        Log.d("aktywnosc","Is tablet? " +  is_tablet);
 
         if(is_tablet)
         {
@@ -111,9 +114,11 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                             public void run() {
                                 dayF.updateData();
                                 nightF.updateData();
+
+                                connectApiToGetDataByCityName();
                             }
                         });
-                        Thread.sleep(refreshTime * 1000);
+                        Thread.sleep(refreshTime * 1000 * 60);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -123,6 +128,16 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
         thread.start();
         thread2.start();
+
+        System.out.println("IS NET?:" + isNetworkAvailable());
+        if(isNetworkAvailable())
+        {
+            // TODO
+        }
+        else
+        {
+            showAlert("No internet connection!");
+        }
     }
 
     public void onSaveNewCoordsClick(View view)
@@ -186,14 +201,13 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
                 advancedF.getDataFromApi(dataFromApi);
                 advancedF.updateData();
-
             }
 
             @Override
             public void failure(RetrofitError error) {
                 System.out.println("NIE DZIALA :(");
                 System.out.println(error.getUrl());
-                showAlert();
+                showAlert("Wrong name");
             }
         });
     }
@@ -203,8 +217,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             @Override
             public void success(DataForecast dataForecast, Response response) {
                 dataForecastFromApi = dataForecast;
-                System.out.println("EEEEE " + response.getUrl());
-                System.out.println("TEMP MAX: " + dataForecastFromApi.getList().get(0).getMain().getTemp_max().toString());
+                System.out.println("RESPONSE URL " + response.getUrl());
 
                 forecastF.getDataForecastFromApi(dataForecastFromApi);
                 forecastF.updateData();
@@ -214,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             public void failure(RetrofitError error) {
                 System.out.println("NIE DZIALA :(");
                 System.out.println(error.getUrl());
-                showAlert();
+                showAlert("Wrong name");
             }
         });
     }
@@ -236,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             public void failure(RetrofitError error) {
                 System.out.println("NIE DZIALA :(");
                 System.out.println(error.getUrl());
-                showAlert();
+                showAlert("Wrong coords");
             }
         });
     }
@@ -255,9 +268,16 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             public void failure(RetrofitError error) {
                 System.out.println("NIE DZIALA :(");
                 System.out.println(error.getUrl());
-                showAlert();
+                showAlert("Wrong coords");
             }
         });
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public void onSunClick(View view)
@@ -345,10 +365,10 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
     }
 
-    private void showAlert() {
+    private void showAlert(String alert) {
         a_Builder = new AlertDialog.Builder(this);
         alertDialog = a_Builder.create();
-        alertDialog.setTitle("Wrong data!");
+        alertDialog.setTitle(alert);
         alertDialog.show();
     }
 }

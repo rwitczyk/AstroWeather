@@ -12,8 +12,12 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.astro.R;
+import com.example.astro.forecast.DataForecast;
+import com.squareup.picasso.Picasso;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,8 +36,12 @@ public class forecastFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private DataForecast dataForecastFromApi;
+    private TextView nazwa1,tempMin1,tempMax1,nazwa2,tempMin2,tempMax2,nazwa3,tempMin3,tempMax3,nazwa4,tempMin4,tempMax4;
+    private ImageView imageView1,imageView2,imageView3,imageView4;
 
     private OnFragmentInteractionListener mListener;
+    private View view;
 
     public forecastFragment() {
         // Required empty public constructor
@@ -67,10 +75,46 @@ public class forecastFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_forecast, container, false);
+
+        init();
+
+        updateData();
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_forecast, container, false);
+        return view;
+    }
+
+    public void updateData() {
+        if(this.dataForecastFromApi!=null && nazwa1!=null) {
+            nazwa1.setText(String.valueOf(this.dataForecastFromApi.getList().get(0).getDt_txt()).substring(0,10));
+            tempMin1.setText("Min: " + this.dataForecastFromApi.getList().get(0).getMain().getTemp_min() + "°");
+            tempMax1.setText("Max: " + this.dataForecastFromApi.getList().get(4).getMain().getTemp_max() + "°");
+            Picasso.get()
+                    .load("http://openweathermap.org/img/w/"+this.dataForecastFromApi.getList().get(5).getWeather().get(0).getIcon()+".png")
+                    .into(imageView1);
+
+            nazwa2.setText(String.valueOf(this.dataForecastFromApi.getList().get(8).getDt_txt()).substring(0,10));
+            tempMin2.setText("Min: " + this.dataForecastFromApi.getList().get(8).getMain().getTemp_min() + "°");
+            tempMax2.setText("Max: " + this.dataForecastFromApi.getList().get(12).getMain().getTemp_max() + "°");
+            Picasso.get()
+                    .load("http://openweathermap.org/img/w/"+this.dataForecastFromApi.getList().get(13).getWeather().get(0).getIcon()+".png")
+                    .into(imageView2);
+
+            nazwa3.setText(String.valueOf(this.dataForecastFromApi.getList().get(16).getDt_txt()).substring(0,10));
+            tempMin3.setText("Min: " + this.dataForecastFromApi.getList().get(16).getMain().getTemp_min() + "°");
+            tempMax3.setText("Max: " + this.dataForecastFromApi.getList().get(20).getMain().getTemp_max() + "°");
+            Picasso.get()
+                    .load("http://openweathermap.org/img/w/"+this.dataForecastFromApi.getList().get(21).getWeather().get(0).getIcon()+".png")
+                    .into(imageView3);
+
+            nazwa4.setText(String.valueOf(this.dataForecastFromApi.getList().get(24).getDt_txt()).substring(0,10));
+            tempMin4.setText("Min: " + this.dataForecastFromApi.getList().get(24).getMain().getTemp_min() + "°");
+            tempMax4.setText("Max: " + this.dataForecastFromApi.getList().get(28).getMain().getTemp_max() + "°");
+            Picasso.get()
+                    .load("http://openweathermap.org/img/w/"+this.dataForecastFromApi.getList().get(29).getWeather().get(0).getIcon()+".png")
+                    .into(imageView4);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -78,6 +122,11 @@ public class forecastFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public void getDataForecastFromApi(DataForecast data)
+    {
+        this.dataForecastFromApi = data;
     }
 
     @Override
@@ -126,5 +175,31 @@ public class forecastFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void init()
+    {
+        if(view!=null)
+        {
+            nazwa1 = view.findViewById(R.id.dayTextView1);
+            imageView1 = view.findViewById(R.id.imageViewD1);
+            tempMin1 = view.findViewById(R.id.tempMinTextView1);
+            tempMax1 = view.findViewById(R.id.tempMaxTextView1);
+
+            nazwa2 = view.findViewById(R.id.dayTextView2);
+            imageView2 = view.findViewById(R.id.imageViewD2);
+            tempMin2 = view.findViewById(R.id.tempMinTextView2);
+            tempMax2 = view.findViewById(R.id.tempMaxTextView2);
+
+            nazwa3 = view.findViewById(R.id.dayTextView3);
+            imageView3 = view.findViewById(R.id.imageViewD3);
+            tempMin3 = view.findViewById(R.id.tempMinTextView3);
+            tempMax3 = view.findViewById(R.id.tempMaxTextView3);
+
+            nazwa4 = view.findViewById(R.id.dayTextView4);
+            imageView4 = view.findViewById(R.id.imageViewD4);
+            tempMin4 = view.findViewById(R.id.tempMinTextView4);
+            tempMax4 = view.findViewById(R.id.tempMaxTextView4);
+        }
     }
 }

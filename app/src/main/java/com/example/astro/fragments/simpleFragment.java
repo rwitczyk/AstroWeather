@@ -99,7 +99,7 @@ public class simpleFragment extends Fragment {
             cityName.setText("City name: " + this.dataFromApi.getName());
             latitude.setText("Latitude: " + this.dataFromApi.getCoord().getLat());
             longitude.setText("Longitude: " + this.dataFromApi.getCoord().getLon());
-            temperature.setText("Actual temperature: " + this.dataFromApi.getMain().getTemp());
+            temperature.setText("Actual temperature: " + this.dataFromApi.getMain().getTemp() + "°");
             description.setText("Description: " + this.dataFromApi.getWeather().get(0).getDescription());
 
             Picasso.get()

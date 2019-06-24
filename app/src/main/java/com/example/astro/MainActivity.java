@@ -12,6 +12,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.astro.data.Data;
+import com.example.astro.forecast.DataForecast;
 import com.example.astro.fragments.advancedFragment;
 import com.example.astro.fragments.dayFragment;
 import com.example.astro.fragments.forecastFragment;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     RestAdapter retrofit;
     MyWebService myWebService;
     private Data dataFromApi;
+    private DataForecast dataForecastFromApi;
     private AlertDialog.Builder a_Builder;
     private AlertDialog alertDialog;
 
@@ -145,11 +147,13 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             if(switchButton.isChecked()) {
                 units = "imperial";
                 connectApiToGetDataByCoords();
+                connectApiToGetForecastByCoords();
             }
             else
             {
                 units = "metric";
                 connectApiToGetDataByCoords();
+                connectApiToGetForecastByCoords();
             }
         }
     }
@@ -161,11 +165,13 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             if(switchButton.isChecked()) {
                 units = "imperial";
                 connectApiToGetDataByCityName();
+                connectApiToGetForecastByCityName();
             }
             else
             {
                 units = "metric";
                 connectApiToGetDataByCityName();
+                connectApiToGetForecastByCityName();
             }
         }
     }
@@ -192,6 +198,28 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         });
     }
 
+    private void connectApiToGetForecastByCityName() {
+        myWebService.getForecastByName(String.valueOf(cityName.getText()), units, apiKey, new Callback<DataForecast>() {
+            @Override
+            public void success(DataForecast dataForecast, Response response) {
+                dataForecastFromApi = dataForecast;
+                System.out.println("EEEEE " + response.getUrl());
+                System.out.println("TEMP MAX: " + dataForecastFromApi.getList().get(0).getMain().getTemp_max().toString());
+
+                forecastF.getDataForecastFromApi(dataForecastFromApi);
+                forecastF.updateData();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+                System.out.println(error.getUrl());
+                showAlert();
+            }
+        });
+    }
+
+
     private void connectApiToGetDataByCoords() {
         myWebService.getDataByCoords(pos1,pos2,units,apiKey,new Callback<Data>() {
             @Override
@@ -202,6 +230,25 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
                 advancedF.getDataFromApi(dataFromApi);
                 advancedF.updateData();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("NIE DZIALA :(");
+                System.out.println(error.getUrl());
+                showAlert();
+            }
+        });
+    }
+
+    private void connectApiToGetForecastByCoords(){
+        myWebService.getForecastByCoords(pos1, pos2, units, apiKey, new Callback<DataForecast>() {
+            @Override
+            public void success(DataForecast dataForecast, Response response) {
+                dataForecastFromApi = dataForecast;
+
+                forecastF.getDataForecastFromApi(dataForecastFromApi);
+                forecastF.updateData();
             }
 
             @Override
@@ -252,13 +299,10 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.containerForAstro,forecastF)
                 .commit();
+
+        forecastF.getDataForecastFromApi(dataForecastFromApi);
+        forecastF.updateData();
     }
-
-    public void onSwitchUnits(View view)
-    {
-
-    }
-
 
     private void init() {
         actualTime = findViewById(R.id.actTime);

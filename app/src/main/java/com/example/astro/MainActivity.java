@@ -22,7 +22,16 @@ import com.example.astro.fragments.favouriteFragment;
 import com.example.astro.fragments.forecastFragment;
 import com.example.astro.fragments.nightFragment;
 import com.example.astro.fragments.simpleFragment;
+import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -56,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     private Switch switchButton;
     private RealmResults<FavouriteData> favouriteDataRealmResults;
     private Realm realm;
+    public static final String FILE_NAME_DATA = "DataObjFromApi.json";
+    public static final String FILE_NAME_FORECAST = "ForecastObjFromApi.json";
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     RestAdapter retrofit;
@@ -83,6 +94,22 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.containerForNight,nightF)
+                    .commit();
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.containerForSimple,simpleF)
+                    .commit();
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.containerForAdvanced,advancedF)
+                    .commit();
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.containerForForecast,forecastF)
+                    .commit();
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.containerForFavourites,favouriteF)
                     .commit();
         }
 
@@ -122,7 +149,8 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                                 dayF.updateData();
                                 nightF.updateData();
 
-                                connectApiToGetDataByCityName();
+                                View view = null;
+                                onSaveNewCoordsClick(view);
                             }
                         });
                         Thread.sleep(refreshTime * 1000 * 60);
@@ -136,16 +164,19 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         thread.start();
         thread2.start();
 
-        // zapisywac dane i wczytywac przy starcie aplikacji, zrobic layout na tablet
 
         System.out.println("IS NET?:" + isNetworkAvailable());
         if(isNetworkAvailable())
         {
-            // TODO
+
         }
         else
         {
             showAlert("No internet connection!");
+
+            this.dataFromApi = loadDataFromStorage();
+            simpleF.getDataFromApi(this.dataFromApi);
+            advancedF.getDataFromApi(this.dataFromApi);
         }
     }
 
@@ -201,24 +232,27 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
     }
 
     private void connectApiToGetDataByCityName() {
-        myWebService.getDataByName(String.valueOf(cityName.getText()),units,apiKey,new Callback<Data>() {
-            @Override
-            public void success(Data data, Response response) {
-                dataFromApi = data;
-                simpleF.getDataFromApi(dataFromApi);
-                simpleF.updateData();
+        if(cityName!=null) {
+            myWebService.getDataByName(String.valueOf(cityName.getText()), units, apiKey, new Callback<Data>() {
+                @Override
+                public void success(Data data, Response response) {
+                    dataFromApi = data;
+                    saveDataInStorage(data);
+                    simpleF.getDataFromApi(dataFromApi);
+                    simpleF.updateData();
 
-                advancedF.getDataFromApi(dataFromApi);
-                advancedF.updateData();
-            }
+                    advancedF.getDataFromApi(dataFromApi);
+                    advancedF.updateData();
+                }
 
-            @Override
-            public void failure(RetrofitError error) {
-                System.out.println("NIE DZIALA :(");
-                System.out.println(error.getUrl());
-                showAlert("Wrong name");
-            }
-        });
+                @Override
+                public void failure(RetrofitError error) {
+                    System.out.println("NIE DZIALA :(");
+                    System.out.println(error.getUrl());
+                    showAlert("Wrong name");
+                }
+            });
+        }
     }
 
     private void connectApiToGetForecastByCityName() {
@@ -247,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
             @Override
             public void success(Data data, Response response) {
                 dataFromApi = data;
+                saveDataInStorage(data);
                 simpleF.getDataFromApi(dataFromApi);
                 simpleF.updateData();
 
@@ -280,6 +315,63 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
                 showAlert("Wrong coords");
             }
         });
+    }
+
+    public Data loadDataFromStorage()
+    {
+        FileInputStream fis = null;
+        Data data2 = null;
+        ObjectInputStream in = null;
+        try {
+            fis = openFileInput(FILE_NAME_DATA);
+            in = new ObjectInputStream(fis);
+            data2 = (Data)in.readObject();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return data2;
+    }
+
+    public void saveDataInStorage(Data data)
+    {
+        FileOutputStream fos = null;
+        ObjectOutputStream out = null;
+
+        try {
+            fos = openFileOutput(FILE_NAME_DATA,MODE_PRIVATE);
+            out = new ObjectOutputStream(fos);
+            out.writeObject(data);
+            System.out.println("JSON: " + data);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                fos.close();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private boolean isNetworkAvailable() {
@@ -372,7 +464,6 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
         // tworzymy klienta
         myWebService = retrofit.create(MyWebService.class);
 
-
         initDatabaseRealm();
     }
 
@@ -451,29 +542,44 @@ public class MainActivity extends AppCompatActivity implements dayFragment.OnFra
 
     public void addLocalizationOnClick(View view)
     {
-        boolean ifCityActualExistsInDb = false;
-        String value = favouriteF.nameOfCity.getText().toString();
-        if(this.favouriteDataRealmResults!=null) {
-            for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
-                if (value.equals(favouriteDataRealmResult.getName())) {
-                    ifCityActualExistsInDb = true;
-                    break;
-                } else {
-                    ifCityActualExistsInDb = false;
+        if(favouriteF.nameOfCity!=null) {
+            myWebService.getDataByName(favouriteF.nameOfCity.getText().toString(), units, apiKey, new Callback<Data>() { // walidacja czy nazwa lokalizacji jest poprawna
+                @Override
+                public void success(Data data, Response response) {
+
+                    boolean ifCityActualExistsInDb = false;
+                    String value = favouriteF.nameOfCity.getText().toString();
+                    if(favouriteDataRealmResults!=null) {
+                        for (FavouriteData favouriteDataRealmResult : favouriteDataRealmResults) { //sprawdzanie czy lokalizacja aktualnie istnieje w bazie
+                            if (value.equals(favouriteDataRealmResult.getName())) {
+                                ifCityActualExistsInDb = true;
+                                break;
+                            } else {
+                                ifCityActualExistsInDb = false;
+                            }
+                        }
+                    }
+
+                    if(!ifCityActualExistsInDb) {
+                        if(value.length()>0) {
+                            realm.beginTransaction();
+                            FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
+                            addItemToDB.setName(value);
+                            addItemToDB.setIdLocalization("3");
+                            realm.commitTransaction();
+
+                            favouriteF.printLocalizationList();
+                        }
+                    }
                 }
-            }
-        }
 
-        if(!ifCityActualExistsInDb) {
-            if(value.length()>0) {
-                realm.beginTransaction();
-                FavouriteData addItemToDB = realm.createObject(FavouriteData.class);
-                addItemToDB.setName(value);
-                addItemToDB.setIdLocalization("3");
-                realm.commitTransaction();
-
-                favouriteF.printLocalizationList();
-            }
+                @Override
+                public void failure(RetrofitError error) {
+                    System.out.println("Zla nazwa lokalizacji :(");
+                    System.out.println(error.getUrl());
+                    showAlert("Wrong name");
+                }
+            });
         }
     }
 

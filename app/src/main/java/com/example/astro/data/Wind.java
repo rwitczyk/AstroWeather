@@ -1,10 +1,11 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Wind {
+public class Wind  implements Serializable {
 
     private Double speed;
     private Double deg;

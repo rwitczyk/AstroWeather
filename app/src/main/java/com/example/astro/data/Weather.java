@@ -1,10 +1,11 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Weather {
+public class Weather  implements Serializable {
 
     private Integer id;
     private String main;

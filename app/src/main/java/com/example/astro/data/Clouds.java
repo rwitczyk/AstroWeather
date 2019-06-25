@@ -1,10 +1,11 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Clouds {
+public class Clouds  implements Serializable {
 
     private Integer all;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

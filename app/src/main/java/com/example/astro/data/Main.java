@@ -1,10 +1,11 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Main {
+public class Main  implements Serializable {
 
     private Double temp;
     private Integer pressure;

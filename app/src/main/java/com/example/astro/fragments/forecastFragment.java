@@ -139,6 +139,7 @@ public class forecastFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig){ //obracanie ekranu
         super.onConfigurationChanged(newConfig);

@@ -1,11 +1,12 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Data {
+public class Data implements Serializable {
 
     private Coord coord;
     private List<Weather> weather = null;

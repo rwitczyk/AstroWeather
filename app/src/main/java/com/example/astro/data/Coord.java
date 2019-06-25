@@ -1,10 +1,11 @@
 
 package com.example.astro.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Coord {
+public class Coord  implements Serializable {
 
     private Double lon;
     private Double lat;
